@@ -178,6 +178,11 @@ class Draw {
     return this;
   }
 
+  scale(x, y) {
+    this.ctx.scale(x, y);
+    return this;
+  }
+
   clearRect(x, y, w, h) {
     this.ctx.clearRect(x, y, w, h);
     return this;
@@ -225,7 +230,7 @@ class Draw {
       fillStyle: color,
       strokeStyle: color,
     });
-    const txts = mtxt.split('\n');
+    const txts = `${mtxt}`.split('\n');
     const biw = box.innerWidth();
     const ntxts = [];
     txts.forEach((it) => {

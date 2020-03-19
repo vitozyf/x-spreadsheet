@@ -37,12 +37,15 @@ class Spreadsheet {
     rootEl.child(this.bottombar.el);
   }
 
-  addSheet(name) {
+  addSheet(name, active = true) {
     const n = name || `sheet${this.sheetIndex}`;
     const d = new DataProxy(n, this.options);
+    d.change = (...args) => {
+      this.sheet.trigger('change', ...args);
+    };
     this.datas.push(d);
     // console.log('d:', n, d, this.datas);
-    this.bottombar.addItem(n, true);
+    this.bottombar.addItem(n, active);
     this.sheetIndex += 1;
     return d;
   }
@@ -56,13 +59,25 @@ class Spreadsheet {
   }
 
   loadData(data) {
-    const d = Array.isArray(data) ? data[0] : data;
-    this.sheet.loadData(d);
+    // const d = Array.isArray(data) ? data[0] : data;
+    const ds = Array.isArray(data) ? data : [data];
+    for (let i = 1; i < ds.length; i += 1) {
+      const it = ds[i];
+      const nd = this.addSheet(it.name, false);
+      nd.setData(it);
+    }
+    this.bottombar.renameItem(0, ds[0].name);
+    this.sheet.loadData(ds[0]);
     return this;
   }
 
   getData() {
     return this.datas.map(it => it.getData());
+  }
+
+  on(eventName, func) {
+    this.sheet.on(eventName, func);
+    return this;
   }
 
   validate() {
@@ -71,7 +86,7 @@ class Spreadsheet {
   }
 
   change(cb) {
-    this.data.change = cb;
+    this.sheet.on('change', cb);
     return this;
   }
 
